@@ -6,13 +6,24 @@
 //  Copyright (c) 2014 Lighthouse Labs. All rights reserved.
 //
 #import <Foundation/Foundation.h>
+
 #import "Pizza.h"
+
+@class Kitchen;
+
+@protocol KitchenDelegate <NSObject>
+
+- (BOOL)kitchen:(Kitchen *)kitchen shouldMakePizzaOfSize:(PizzaSize)size andToppings:(NSArray *)toppings;
+- (BOOL)kitchenShouldUpgradeOrder:(Kitchen *)kitchen;
+@optional
+- (void)kitchenDidMakePizza:(Pizza *)pizza;
+
+@end
 
 @interface Kitchen : NSObject
 
-- (Pizza *)makePizzaWithSize:(PizzaSize)size toppings:(NSArray<NSString *> *)toppings;
+@property (nonatomic, weak) id<KitchenDelegate> delegate; 
 
-+ (Pizza *)largePepperoni;
-+ (Pizza *)meatLoversWithSize:(PizzaSize)size;
+- (Pizza *)makePizzaWithSize:(PizzaSize)size toppings:(NSArray<NSString *> *)toppings;
 
 @end

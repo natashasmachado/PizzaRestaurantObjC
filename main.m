@@ -10,11 +10,20 @@
 
 #import "Kitchen.h"
 
+#import "FirstManager.h"
+
+#import "SecondManager.h"
+
+
 int main(int argc, const char * argv[])
 {
   @autoreleasepool {
     NSLog(@"Please pick your pizza size and toppings:");
+    FirstManager *firstManager = [FirstManager new];
+    SecondManager *secondManager = [SecondManager new];
+    
     Kitchen *restaurantKitchen = [Kitchen new];
+    restaurantKitchen.delegate = firstManager;
     
     while (TRUE) {
       NSLog(@"> ");
@@ -23,19 +32,21 @@ int main(int argc, const char * argv[])
       
       NSString *inputString = [[NSString alloc] initWithUTF8String:str];
       inputString = [inputString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-      
-      NSArray *commandWords = [inputString componentsSeparatedByString:@" "];
-      
-      // Check for common pizza requests
-      if ([inputString isEqualToString:@"pepperoni"]) {
-        Pizza *pizza = [Kitchen largePepperoni];
-        NSLog(@"You ordered a large pepperoni pizza!");
-        NSLog(@"Size: %ld, Toppings: %@", (long)pizza.size, pizza.toppings);
-      } else if ([commandWords count] >= 2) {
+      if ([inputString isEqualToString:@"switch manager"]) {
+        restaurantKitchen.delegate = firstManager;
+        NSLog(@"Switched to First Manager.");
+      } else if ([inputString isEqualToString:@"switch second"]) {
+        restaurantKitchen.delegate = secondManager;
+        NSLog(@"Switched to Second Manager.");
+      } else if ([inputString isEqualToString:@"switch none"]) {
+        restaurantKitchen.delegate = nil;
+        NSLog(@"No manager selected.");
+      } else {
+        NSArray *commandWords = [inputString componentsSeparatedByString:@" "];
         NSString *sizeString = commandWords[0];
         NSString *toppingsString = [inputString substringFromIndex:[sizeString length] + 1];
         
-        PizzaSize size = Small; // Default size
+        PizzaSize size = Small;
         if ([sizeString isEqualToString:@"medium"]) {
           size = Medium;
         } else if ([sizeString isEqualToString:@"large"]) {
@@ -45,10 +56,10 @@ int main(int argc, const char * argv[])
         NSArray *toppings = [toppingsString componentsSeparatedByString:@","];
         
         Pizza *pizza = [restaurantKitchen makePizzaWithSize:size toppings:toppings];
-        NSLog(@"You ordered a pizza!");
-        NSLog(@"Size: %ld, Toppings: %@", (long)pizza.size, pizza.toppings);
-      } else {
-        NSLog(@"Invalid input. Please specify size and toppings.");
+        if (pizza) {
+          NSLog(@"You ordered is done");
+          NSLog(@"Size: %ld, Toppings: %@", (long)pizza.size, pizza.toppings);
+        }
       }
     }
   }

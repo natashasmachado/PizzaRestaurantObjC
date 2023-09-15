@@ -11,7 +11,29 @@
 @implementation Kitchen
 
 - (Pizza *)makePizzaWithSize:(PizzaSize)size toppings:(NSArray<NSString *> *)toppings {
-  return [[Pizza alloc] initWithSize:size toppings:toppings];
+  if ([self.delegate respondsToSelector:@selector(kitchen:shouldMakePizzaOfSize:andToppings:)]) {
+    if (![self.delegate kitchen:self shouldMakePizzaOfSize:size andToppings:toppings]) {
+      NSLog(@"Pizza type not accepted.");
+      return nil;
+    }
+  }
+  
+  PizzaSize pizzaSize = size;
+  
+  if ([self.delegate respondsToSelector:@selector(kitchenShouldUpgradeOrder:)]) {
+    if ([self.delegate kitchenShouldUpgradeOrder:self]) {
+      NSLog(@"Order changed to large.");
+      pizzaSize = Large;
+    }
+  }
+  
+  Pizza *pizza = [[Pizza alloc] initWithSize:pizzaSize toppings:toppings];
+  
+  if ([self.delegate respondsToSelector:@selector(kitchenDidMakePizza:)]) {
+    [self.delegate kitchenDidMakePizza:pizza];
+  }
+  
+  return pizza;
 }
 
 + (Pizza *)largePepperoni {
@@ -19,8 +41,9 @@
 }
 
 + (Pizza *)meatLoversWithSize:(PizzaSize)size {
-  NSArray<NSString *> *toppings = @[@"sausage", @"pepperoni", @"bacon"];
+  NSArray<NSString *> *toppings = @[@"sausage", @"mushroom", @"pepperoni", @"bacon"];
   return [[Pizza alloc] initWithSize:size toppings:toppings];
 }
+
 
 @end
